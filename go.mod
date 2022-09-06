@@ -1,3 +1,3 @@
-module github.com/srclab/s3
+module github.com/srclab/service
 
 go 1.19
