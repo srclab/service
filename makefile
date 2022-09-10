@@ -30,9 +30,6 @@ kind-up:
 		--config zarf/k8s/kind/kind-config.yaml
 	kubectl config set-context --current --namespace=service-system
 
-kind-down:
-	kind delete cluster --name $(KIND_CLUSTER)
-
 kind-status:
 	kubectl get nodes -o wide
 	kubectl get svc -o wide
@@ -42,7 +39,7 @@ kind-load:
 	kind load docker-image service-amd64:$(VERSION) --name $(KIND_CLUSTER)
 
 kind-apply:
-	cat zarf/k8s/base/service-pod/base-service.yaml | kubectl apply -f -
+	kustomize build zarf/k8s/kind/service-pod | kubectl apply -f -
 
 kind-logs:
 	kubectl logs -l app=service --all-containers=true -f --tail=100
@@ -55,6 +52,8 @@ kind-status-service:
 
 kind-update: all kind-load kind-restart
 
+kind-update-apply: all kind-load kind-apply
+
 kind-down:
 	kind delete cluster --name $(KIND_CLUSTER)
 
@@ -62,3 +61,7 @@ kind-describe:
 	kubectl describe nodes
 	kubectl describe svc
 	kubectl describe pod -l app=service
+
+tidy:
+	go mod tidy
+	go mod vendor
